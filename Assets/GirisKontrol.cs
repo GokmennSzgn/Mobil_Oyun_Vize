@@ -2,6 +2,7 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GirisKontrol : MonoBehaviour
 {
@@ -15,6 +16,33 @@ public class GirisKontrol : MonoBehaviour
 
     private bool sesDurumu = true;
     private bool tamEkranDurumu = true; 
+
+    private void Awake()
+    {
+        CikisButonuOlustur();
+    }
+
+    private void CikisButonuOlustur()
+    {
+        GameObject oyunaBasla = GameObject.Find("OyunaBaslaButton");
+        if (oyunaBasla == null || GameObject.Find("GirisCikisButton") != null) return;
+
+        GameObject cikis = Instantiate(oyunaBasla, oyunaBasla.transform.parent);
+        cikis.name = "GirisCikisButton";
+
+        RectTransform cikisTransform = cikis.GetComponent<RectTransform>();
+        RectTransform kaynakTransform = oyunaBasla.GetComponent<RectTransform>();
+        cikisTransform.anchoredPosition = new Vector2(
+            kaynakTransform.anchoredPosition.x,
+            kaynakTransform.anchoredPosition.y - 175f);
+
+        Button cikisButton = cikis.GetComponent<Button>();
+        cikisButton.onClick.RemoveAllListeners();
+        cikisButton.onClick.AddListener(OyundanCik);
+
+        TextMeshProUGUI cikisYazisi = cikis.GetComponentInChildren<TextMeshProUGUI>(true);
+        if (cikisYazisi != null) cikisYazisi.text = "Çıkış";
+    }
 
     public void OyunaBasla()
     {

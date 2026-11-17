@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -37,8 +38,43 @@ public class GameManager : MonoBehaviour
         SkoruGuncelle();
         CanGuncelle();
 
+        CikisButonuOlustur();
+
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false); 
+    }
+
+    private void CikisButonuOlustur()
+    {
+        if (gameOverPanel == null || gameOverPanel.transform.Find("OyunCikisButton") != null) return;
+
+        Button kaynakButton = null;
+        foreach (Button button in gameOverPanel.GetComponentsInChildren<Button>(true))
+        {
+            if (button.gameObject.name == "YenidenBaslatButton")
+            {
+                kaynakButton = button;
+                break;
+            }
+        }
+
+        if (kaynakButton == null) return;
+
+        GameObject cikis = Instantiate(kaynakButton.gameObject, kaynakButton.transform.parent);
+        cikis.name = "OyunCikisButton";
+
+        RectTransform cikisTransform = cikis.GetComponent<RectTransform>();
+        RectTransform kaynakTransform = kaynakButton.GetComponent<RectTransform>();
+        cikisTransform.anchoredPosition = new Vector2(
+            kaynakTransform.anchoredPosition.x,
+            kaynakTransform.anchoredPosition.y - 48f);
+
+        Button cikisButton = cikis.GetComponent<Button>();
+        cikisButton.onClick.RemoveAllListeners();
+        cikisButton.onClick.AddListener(OyundanCik);
+
+        TextMeshProUGUI cikisYazisi = cikis.GetComponentInChildren<TextMeshProUGUI>(true);
+        if (cikisYazisi != null) cikisYazisi.text = "Çıkış";
     }
 
     public void PuanArttir()
@@ -120,6 +156,17 @@ public class GameManager : MonoBehaviour
 
         // Build Settings'e eklediğin ana menü sahnesinin tam adı
         SceneManager.LoadScene("GirisSahnesi");
+    }
+
+    public void OyundanCik()
+    {
+        Debug.Log("Oyun kapatıldı!");
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
     public void AyarlarAc()
